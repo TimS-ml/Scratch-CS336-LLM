@@ -93,6 +93,9 @@ def evaluate_gsm8k(
         
         parsed_answer = parse_gsm8k_qwen_response(generated_text)
         parsed_correct_answer = run_parse_gsm8k_response(correct_answer)
+
+        print(generated_text)
+        print(correct_answer)
         
         parse_fail = parsed_answer == None
         evaluation_score = 1 if parsed_correct_answer == parsed_answer else 0

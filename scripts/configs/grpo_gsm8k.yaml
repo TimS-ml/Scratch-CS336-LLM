@@ -2,7 +2,7 @@ mlflow_project: sft-gsm8k
 checkpoint_dir: ${hydra:run.dir}/checkpoint/
 csv_dir: ${hydra:run.dir}/csv/  # for saving evaluation results
 
-model_path: /Users/hex/workspace2/wingAGI/huggingface_models/Qwen/Qwen3-0.6B
+model_path: huggingface_models/Qwen/Qwen2.5-Math-1.5B
 dataset_path: "data_sft/openai/gsm8k"
 
 train_device: cuda:0
@@ -16,5 +16,3 @@ learning_rate: 2e-5
 weight_decay: 0.01
 eval_steps: 1
 save_steps: 10
-
-
