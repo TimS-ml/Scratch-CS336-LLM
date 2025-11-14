@@ -1,0 +1,274 @@
+# GPTQ Quantization Configuration / GPTQ 量化配置
+# Configuration file for model quantization using GPTQ
+# 使用 GPTQ 进行模型量化的配置文件
+
+# ============================================================================
+# Basic Configuration / 基本配置
+# ============================================================================
+
+# Model configuration / 模型配置
+model_path: "Qwen/Qwen2.5-0.5B"  # Path or HuggingFace model ID / 路径或 HuggingFace 模型 ID
+output_dir: "output/qwen2.5-0.5b-gptq-4bit"  # Output directory / 输出目录
+
+# Data configuration / 数据配置
+data_path: "data/calibration.jsonl"  # Path to calibration data (JSONL) / 校准数据路径（JSONL）
+max_samples: 128  # Number of calibration samples (null for all) / 校准样本数（null 表示全部）
+input_field: "input"  # Input field name in JSONL / JSONL 中的输入字段名
+target_field: "target"  # Target field name in JSONL / JSONL 中的目标字段名
+
+# ============================================================================
+# Quantization Parameters / 量化参数
+# ============================================================================
+
+# Quantization bits / 量化位数
+# Options: 4, 8
+# 4-bit: Higher compression, faster inference, may lose some quality
+# 8-bit: Better quality, less compression
+# 选项：4, 8
+# 4 位：更高压缩，更快推理，可能损失一些质量
+# 8 位：更好质量，更少压缩
+bits: 4
+
+# Group size for quantization / 量化组大小
+# Options: -1 (no grouping), 32, 64, 128
+# Smaller group size: Better quality, larger model size
+# Larger group size: More compression, may lose quality
+# -1: No grouping (fastest but lowest quality)
+# 选项：-1（不分组），32, 64, 128
+# 更小的组大小：更好的质量，更大的模型大小
+# 更大的组大小：更多压缩，可能损失质量
+# -1：不分组（最快但质量最低）
+group_size: 128
+
+# Damping percentage / 阻尼百分比
+# Range: 0.01 - 0.1
+# Lower values: May improve quality for some models
+# Higher values: More stable quantization
+# 范围：0.01 - 0.1
+# 更低的值：可能改善某些模型的质量
+# 更高的值：更稳定的量化
+damp_percent: 0.1
+
+# Descending activation order / 降序激活顺序
+# false: Faster inference (recommended for deployment)
+# true: May improve perplexity slightly
+# false：更快的推理（推荐用于部署）
+# true：可能略微改善困惑度
+desc_act: false
+
+# Symmetric quantization / 对称量化
+# true: Symmetric quantization (recommended)
+# false: Asymmetric quantization
+# true：对称量化（推荐）
+# false：非对称量化
+sym: true
+
+# Static groups / 静态组
+# false: Dynamic groups (recommended)
+# true: Static groups
+# false：动态组（推荐）
+# true：静态组
+static_groups: false
+
+# True sequential quantization / 真正的顺序量化
+# true: Sequential quantization (recommended)
+# false: Parallel quantization
+# true：顺序量化（推荐）
+# false：并行量化
+true_sequential: true
+
+# ============================================================================
+# Training Parameters / 训练参数
+# ============================================================================
+
+# Maximum input length / 最大输入长度
+# Should match your model's context length
+# 应匹配模型的上下文长度
+max_input_length: 8192
+
+# Batch size for quantization / 量化批次大小
+# Larger batch: Faster but requires more memory
+# 更大批次：更快但需要更多内存
+batch_size: 1
+
+# ============================================================================
+# Hardware Configuration / 硬件配置
+# ============================================================================
+
+# Number of GPUs to use / 使用的 GPU 数量
+num_gpus: 1
+
+# Maximum memory per GPU in GB / 每个 GPU 的最大内存（GB）
+# Adjust based on your GPU memory
+# 根据 GPU 内存调整
+max_memory_per_gpu: 20
+
+# Cache calibration examples on GPU / 在 GPU 上缓存校准样本
+# true: Faster but requires more GPU memory
+# false: Slower but uses less GPU memory
+# true：更快但需要更多 GPU 内存
+# false：更慢但使用更少 GPU 内存
+cache_examples_on_gpu: false
+
+# Use Triton kernels / 使用 Triton 内核
+# true: Faster quantization (requires Triton)
+# false: Standard quantization
+# true：更快的量化（需要 Triton）
+# false：标准量化
+use_triton: false
+
+# ============================================================================
+# Other Settings / 其他设置
+# ============================================================================
+
+# Trust remote code / 信任远程代码
+trust_remote_code: true
+
+# Use safetensors format / 使用 safetensors 格式
+# true: Use safetensors (recommended, safer)
+# false: Use PyTorch format
+# true：使用 safetensors（推荐，更安全）
+# false：使用 PyTorch 格式
+use_safetensors: true
+
+# ============================================================================
+# Example Configurations for Different Model Sizes / 不同模型大小的示例配置
+# ============================================================================
+
+# --- Small Models (< 1B parameters) / 小模型（< 10 亿参数）---
+# model_path: "Qwen/Qwen2.5-0.5B"
+# bits: 4
+# group_size: 128
+# max_memory_per_gpu: 10
+# max_samples: 128
+
+# --- Medium Models (1B - 7B parameters) / 中等模型（10 亿 - 70 亿参数）---
+# model_path: "Qwen/Qwen2.5-1.5B"
+# bits: 4
+# group_size: 128
+# max_memory_per_gpu: 20
+# max_samples: 256
+
+# --- Large Models (7B - 13B parameters) / 大模型（70 亿 - 130 亿参数）---
+# model_path: "Qwen/Qwen2.5-7B"
+# bits: 4
+# group_size: 128
+# max_memory_per_gpu: 40
+# num_gpus: 2
+# max_samples: 512
+
+# --- Very Large Models (> 13B parameters) / 超大模型（> 130 亿参数）---
+# model_path: "Qwen/Qwen2.5-14B"
+# bits: 4
+# group_size: 128
+# max_memory_per_gpu: 80
+# num_gpus: 4
+# max_samples: 1024
+# cache_examples_on_gpu: true
+
+# ============================================================================
+# Quality vs Speed Trade-offs / 质量与速度权衡
+# ============================================================================
+
+# Maximum Quality Configuration / 最高质量配置
+# bits: 8
+# group_size: 32
+# damp_percent: 0.01
+# desc_act: true
+# max_samples: null  # Use all calibration data
+
+# Balanced Configuration / 平衡配置
+# bits: 4
+# group_size: 128
+# damp_percent: 0.1
+# desc_act: false
+# max_samples: 256
+
+# Maximum Speed Configuration / 最高速度配置
+# bits: 4
+# group_size: -1  # No grouping
+# damp_percent: 0.1
+# desc_act: false
+# max_samples: 128
+
+# ============================================================================
+# Usage Examples / 使用示例
+# ============================================================================
+
+# 1. Basic usage with this config file / 使用此配置文件的基本用法:
+#    python scripts/quantize_model.py --config scripts/configs/quantization.yaml
+
+# 2. Override specific parameters / 覆盖特定参数:
+#    python scripts/quantize_model.py --config scripts/configs/quantization.yaml --bits 8
+
+# 3. Command line only (no config file) / 仅命令行（无配置文件）:
+#    python scripts/quantize_model.py \
+#      --model_path Qwen/Qwen2.5-0.5B \
+#      --data_path data/calibration.jsonl \
+#      --output_dir output/quantized_model \
+#      --bits 4 \
+#      --group_size 128
+
+# ============================================================================
+# Calibration Data Format / 校准数据格式
+# ============================================================================
+
+# The calibration data should be in JSONL format (one JSON object per line):
+# 校准数据应为 JSONL 格式（每行一个 JSON 对象）：
+#
+# {"input": "What is the capital of France?", "target": "The capital of France is Paris."}
+# {"input": "Explain quantum computing.", "target": "Quantum computing uses quantum mechanics..."}
+# {"input": "Write a poem about AI.", "target": "In silicon dreams and neural streams..."}
+#
+# Each line should contain:
+# 每行应包含：
+# - "input": The user's question or prompt / 用户的问题或提示
+# - "target": The expected response (optional) / 预期的响应（可选）
+
+# ============================================================================
+# Performance Tips / 性能提示
+# ============================================================================
+
+# 1. GPU Memory / GPU 内存:
+#    - Monitor GPU memory usage with: nvidia-smi
+#    - If OOM, reduce: max_memory_per_gpu, batch_size, max_input_length
+#    - 使用 nvidia-smi 监控 GPU 内存
+#    - 如果内存不足，减少：max_memory_per_gpu、batch_size、max_input_length
+
+# 2. Calibration Samples / 校准样本:
+#    - More samples: Better quality, slower quantization
+#    - 128-256 samples usually sufficient for good quality
+#    - 更多样本：更好质量，更慢量化
+#    - 128-256 个样本通常足以获得良好质量
+
+# 3. Multi-GPU / 多 GPU:
+#    - Set num_gpus to use multiple GPUs
+#    - Adjust max_memory_per_gpu based on total GPU memory
+#    - 设置 num_gpus 以使用多个 GPU
+#    - 根据总 GPU 内存调整 max_memory_per_gpu
+
+# 4. Triton / Triton:
+#    - Enable use_triton for faster quantization (if available)
+#    - Install with: pip install triton
+#    - 启用 use_triton 以加快量化（如果可用）
+#    - 安装：pip install triton
+
+# ============================================================================
+# Troubleshooting / 故障排除
+# ============================================================================
+
+# Issue: Out of Memory (OOM) / 问题：内存不足（OOM）
+# Solution: Reduce max_memory_per_gpu, batch_size, or max_input_length
+# 解决方案：减少 max_memory_per_gpu、batch_size 或 max_input_length
+
+# Issue: Quantization too slow / 问题：量化太慢
+# Solution: Enable cache_examples_on_gpu, use_triton, or reduce max_samples
+# 解决方案：启用 cache_examples_on_gpu、use_triton 或减少 max_samples
+
+# Issue: Poor model quality after quantization / 问题：量化后模型质量差
+# Solution: Use 8-bit, smaller group_size, more calibration samples
+# 解决方案：使用 8 位、更小的 group_size、更多校准样本
+
+# Issue: Model not loading / 问题：模型加载失败
+# Solution: Check model_path, ensure trust_remote_code is true
+# 解决方案：检查 model_path，确保 trust_remote_code 为 true

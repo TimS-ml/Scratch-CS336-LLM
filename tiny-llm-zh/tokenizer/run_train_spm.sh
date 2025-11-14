@@ -1,1 +1,0 @@
-python train_chinese_sp.py  > test_train_chinese_sp.log 2>&1 &
