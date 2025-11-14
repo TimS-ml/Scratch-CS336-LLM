@@ -1,0 +1,216 @@
+{
+  "_comment": "============================================================================",
+  "_comment_1": "DeepSpeed ZeRO Stage 3 Configuration",
+  "_comment_2": "DeepSpeed ZeRO Stage 3 配置",
+  "_comment_3": "============================================================================",
+  "_comment_4": "",
+  "_comment_5": "ZeRO Stage 3: Full Model Sharding",
+  "_comment_6": "ZeRO Stage 3：完全模型分片",
+  "_comment_7": "",
+  "_comment_8": "This configuration enables training of very large models (10B+ parameters)",
+  "_comment_9": "by partitioning model parameters, gradients, and optimizer states across",
+  "_comment_10": "all GPUs. Can reduce memory usage by ~3-4x compared to ZeRO Stage 2.",
+  "_comment_11": "",
+  "_comment_12": "此配置通过在所有 GPU 上分片模型参数、梯度和优化器状态，",
+  "_comment_13": "使得能够训练非常大的模型（10B+ 参数）。",
+  "_comment_14": "与 ZeRO Stage 2 相比，可以减少约 3-4 倍的内存使用。",
+  "_comment_15": "",
+  "_comment_16": "Use Case / 使用场景:",
+  "_comment_17": "- Very large models (7B+ parameters) / 非常大的模型（7B+ 参数）",
+  "_comment_18": "- Limited GPU memory / GPU 内存有限",
+  "_comment_19": "- Multi-node training / 多节点训练",
+  "_comment_20": "- CPU/NVMe offloading for extreme memory constraints / CPU/NVMe 卸载以应对极端内存限制",
+  "_comment_21": "============================================================================",
+
+  "train_batch_size": "auto",
+  "train_micro_batch_size_per_gpu": "auto",
+  "gradient_accumulation_steps": "auto",
+
+  "gradient_clipping": 1.0,
+
+  "zero_optimization": {
+    "stage": 3,
+
+    "_comment_zero_1": "Offload optimizer states to CPU to save GPU memory",
+    "_comment_zero_2": "将优化器状态卸载到 CPU 以节省 GPU 内存",
+    "offload_optimizer": {
+      "device": "cpu",
+      "pin_memory": true,
+      "buffer_count": 4,
+      "fast_init": false,
+      "pipeline_read": false,
+      "pipeline_write": false
+    },
+
+    "_comment_zero_3": "Offload parameters to CPU for extreme memory savings",
+    "_comment_zero_4": "将参数卸载到 CPU 以实现极致内存节省",
+    "_comment_zero_5": "Note: This significantly slows training but enables largest models",
+    "_comment_zero_6": "注意：这会显著降低训练速度，但支持最大的模型",
+    "offload_param": {
+      "device": "cpu",
+      "pin_memory": true,
+      "buffer_count": 5,
+      "buffer_size": 1e8,
+      "max_in_cpu": 1e9
+    },
+
+    "_comment_zero_7": "Overlap communication and computation for better performance",
+    "_comment_zero_8": "重叠通信和计算以获得更好的性能",
+    "overlap_comm": true,
+
+    "_comment_zero_9": "Use contiguous gradients for better memory efficiency",
+    "_comment_zero_10": "使用连续梯度以获得更好的内存效率",
+    "contiguous_gradients": true,
+
+    "_comment_zero_11": "Reduce bucket sizes for gradient all-reduce",
+    "_comment_zero_12": "减少梯度全归约的桶大小",
+    "allgather_bucket_size": 2e8,
+    "reduce_bucket_size": 2e8,
+
+    "_comment_zero_13": "Round-robin gradient partitioning for load balance",
+    "_comment_zero_14": "轮询梯度分片以实现负载平衡",
+    "round_robin_gradients": true,
+
+    "_comment_zero_15": "Sub-group size for ZeRO optimizer (advanced)",
+    "_comment_zero_16": "ZeRO 优化器的子组大小（高级）",
+    "sub_group_size": 1e9,
+
+    "_comment_zero_17": "Stage 3 specific: Gather parameters in FP16",
+    "_comment_zero_18": "Stage 3 特定：以 FP16 收集参数",
+    "stage3_max_live_parameters": 1e9,
+    "stage3_max_reuse_distance": 1e9,
+
+    "_comment_zero_19": "Prefetch parameters for better performance",
+    "_comment_zero_20": "预取参数以获得更好的性能",
+    "stage3_prefetch_bucket_size": 5e7,
+    "stage3_param_persistence_threshold": 1e5,
+
+    "_comment_zero_21": "Gather in FP16 for memory savings (if using FP16)",
+    "_comment_zero_22": "以 FP16 收集以节省内存（如果使用 FP16）",
+    "stage3_gather_16bit_weights_on_model_save": true
+  },
+
+  "_comment_fp16_1": "============================================================================",
+  "_comment_fp16_2": "Mixed Precision Training - FP16",
+  "_comment_fp16_3": "混合精度训练 - FP16",
+  "_comment_fp16_4": "============================================================================",
+  "fp16": {
+    "enabled": false,
+
+    "_comment_fp16_5": "Dynamic loss scaling for numerical stability",
+    "_comment_fp16_6": "动态损失缩放以实现数值稳定性",
+    "loss_scale": 0,
+    "initial_scale_power": 12,
+    "loss_scale_window": 200,
+    "hysteresis": 5,
+    "min_loss_scale": 1
+  },
+
+  "_comment_bf16_1": "============================================================================",
+  "_comment_bf16_2": "Mixed Precision Training - BF16 (Recommended for ZeRO-3)",
+  "_comment_bf16_3": "混合精度训练 - BF16（推荐用于 ZeRO-3）",
+  "_comment_bf16_4": "============================================================================",
+  "_comment_bf16_5": "BF16 is recommended for ZeRO-3 on newer GPUs (A100, H100, etc.)",
+  "_comment_bf16_6": "BF16 推荐用于新型 GPU 上的 ZeRO-3（A100、H100 等）",
+  "_comment_bf16_7": "Better numerical stability and no loss scaling needed",
+  "_comment_bf16_8": "更好的数值稳定性，无需损失缩放",
+  "bf16": {
+    "enabled": true
+  },
+
+  "_comment_data_types_1": "Data type for gradient accumulation (fp32 for bf16)",
+  "_comment_data_types_2": "梯度累积的数据类型（bf16 使用 fp32）",
+  "data_types": {
+    "grad_accum_dtype": "fp32"
+  },
+
+  "_comment_optimizer_1": "============================================================================",
+  "_comment_optimizer_2": "Optimizer Settings (Optional - use when not using HF Trainer)",
+  "_comment_optimizer_3": "优化器设置（可选 - 不使用 HF Trainer 时使用）",
+  "_comment_optimizer_4": "============================================================================",
+  "optimizer": {
+    "type": "AdamW",
+    "params": {
+      "lr": "auto",
+      "betas": [0.9, 0.999],
+      "eps": 1e-8,
+      "weight_decay": "auto"
+    }
+  },
+
+  "_comment_scheduler_1": "Learning rate scheduler (Optional - use when not using HF Trainer)",
+  "_comment_scheduler_2": "学习率调度器（可选 - 不使用 HF Trainer 时使用）",
+  "scheduler": {
+    "type": "WarmupDecayLR",
+    "params": {
+      "warmup_min_lr": "auto",
+      "warmup_max_lr": "auto",
+      "warmup_num_steps": "auto",
+      "total_num_steps": "auto"
+    }
+  },
+
+  "_comment_logging_1": "============================================================================",
+  "_comment_logging_2": "Logging and Monitoring",
+  "_comment_logging_3": "日志和监控",
+  "_comment_logging_4": "============================================================================",
+  "steps_per_print": 10,
+  "wall_clock_breakdown": false,
+
+  "_comment_comms_1": "Communication logging for debugging",
+  "_comment_comms_2": "用于调试的通信日志",
+  "comms_logger": {
+    "enabled": false,
+    "verbose": false,
+    "prof_all": false,
+    "debug": false
+  },
+
+  "_comment_flops_1": "FLOPS profiler for performance analysis",
+  "_comment_flops_2": "用于性能分析的 FLOPS 分析器",
+  "flops_profiler": {
+    "enabled": false,
+    "profile_step": 30,
+    "module_depth": -1,
+    "top_modules": 1,
+    "detailed": true,
+    "output_file": null
+  },
+
+  "_comment_tensorboard_1": "TensorBoard logging",
+  "_comment_tensorboard_2": "TensorBoard 日志",
+  "tensorboard": {
+    "enabled": false,
+    "output_path": "",
+    "job_name": "deepspeed_training"
+  },
+
+  "_comment_activation_1": "============================================================================",
+  "_comment_activation_2": "Activation Checkpointing (Recommended for ZeRO-3)",
+  "_comment_activation_3": "激活检查点（推荐用于 ZeRO-3）",
+  "_comment_activation_4": "============================================================================",
+  "_comment_activation_5": "Highly recommended for ZeRO-3 to save memory",
+  "_comment_activation_6": "强烈推荐用于 ZeRO-3 以节省内存",
+  "activation_checkpointing": {
+    "partition_activations": true,
+    "cpu_checkpointing": false,
+    "contiguous_memory_optimization": true,
+    "number_checkpoints": null,
+    "synchronize_checkpoint_boundary": false,
+    "profile": false
+  },
+
+  "_comment_aio_1": "============================================================================",
+  "_comment_aio_2": "Advanced I/O for NVMe Offloading (Optional)",
+  "_comment_aio_3": "用于 NVMe 卸载的高级 I/O（可选）",
+  "_comment_aio_4": "============================================================================",
+  "_comment_aio_5": "Requires libaio installation: apt-get install libaio-dev",
+  "_comment_aio_6": "需要安装 libaio：apt-get install libaio-dev",
+  "aio": {
+    "block_size": 1048576,
+    "queue_depth": 8,
+    "thread_count": 1,
+    "single_submit": false,
+    "overlap_events": true
+  }
+}

@@ -1,0 +1,329 @@
+# ============================================================================
+# Reward Model Training Configuration
+# 奖励模型训练配置
+# ============================================================================
+#
+# This configuration file contains all parameters for training a reward model
+# in the RLHF pipeline. The reward model learns to predict human preferences
+# by comparing pairs of responses.
+#
+# 此配置文件包含在 RLHF 流程中训练奖励模型的所有参数。
+# 奖励模型通过比较成对的回答来学习预测人类偏好。
+#
+# Usage / 用法:
+#   python scripts/train_rm.py
+#   python scripts/train_rm.py learning_rate=1e-5
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Project Settings / 项目设置
+# ----------------------------------------------------------------------------
+
+# MLflow project name for experiment tracking
+# MLflow 项目名称，用于实验跟踪
+mlflow_project: rm-training
+
+# Output directory for model checkpoints and logs
+# 模型检查点和日志的输出目录
+output_dir: ${hydra:run.dir}/outputs/reward_model/
+checkpoint_dir: ${hydra:run.dir}/checkpoint/
+
+# ----------------------------------------------------------------------------
+# Model Configuration / 模型配置
+# ----------------------------------------------------------------------------
+
+# Path to the pretrained model (typically an SFT model)
+# 预训练模型的路径（通常是 SFT 模型）
+# This should be a model that has already been fine-tuned with SFT
+# 这应该是已经用 SFT 微调过的模型
+model_path: models/sft_checkpoint
+
+# Model type: 'auto', 'tinyllm', or specific HF model type
+# 模型类型：'auto'、'tinyllm' 或特定的 HF 模型类型
+model_type: auto
+
+# Whether to trust remote code when loading models
+# 加载模型时是否信任远程代码
+trust_remote_code: true
+
+# ----------------------------------------------------------------------------
+# Data Configuration / 数据配置
+# ----------------------------------------------------------------------------
+
+# Path to training data (JSONL format with prompt/chosen/rejected)
+# 训练数据路径（包含 prompt/chosen/rejected 的 JSONL 格式）
+# Each line should be: {"prompt": "...", "chosen": "...", "rejected": "..."}
+# 每行应为：{"prompt": "...", "chosen": "...", "rejected": "..."}
+data_path: data/rm_train/rm_data.jsonl
+
+# Maximum sequence length for tokenization
+# 分词的最大序列长度
+# Sequences longer than this will be truncated
+# 超过此长度的序列将被截断
+max_length: 512
+
+# System prompt for conversations
+# 对话的系统提示
+system_prompt: "你是由wdndev开发的个人助手。"
+
+# Ratio of data to use for evaluation (0.01 = 1%)
+# 用于评估的数据比例（0.01 = 1%）
+eval_split_ratio: 0.01
+
+# Number of workers for data preprocessing
+# 数据预处理的工作进程数
+preprocessing_num_workers: 4
+
+# ----------------------------------------------------------------------------
+# Training Hyperparameters / 训练超参数
+# ----------------------------------------------------------------------------
+
+# Number of training epochs
+# 训练轮数
+num_epochs: 3
+
+# Training batch size per device
+# 每个设备的训练批次大小
+per_device_train_batch_size: 4
+
+# Evaluation batch size per device
+# 每个设备的评估批次大小
+per_device_eval_batch_size: 4
+
+# Number of gradient accumulation steps
+# 梯度累积步数
+# Effective batch size = per_device_train_batch_size * gradient_accumulation_steps * num_gpus
+# 有效批次大小 = per_device_train_batch_size * gradient_accumulation_steps * num_gpus
+gradient_accumulation_steps: 4
+
+# Learning rate
+# 学习率
+# Typical range for RM training: 1e-6 to 1e-4
+# RM 训练的典型范围：1e-6 到 1e-4
+learning_rate: 1e-5
+
+# Weight decay for regularization
+# 用于正则化的权重衰减
+weight_decay: 0.01
+
+# Warmup ratio (fraction of total steps)
+# 预热比例（总步数的分数）
+# E.g., 0.1 means 10% of steps will be used for warmup
+# 例如，0.1 表示 10% 的步数将用于预热
+warmup_ratio: 0.1
+
+# Maximum gradient norm for gradient clipping
+# 梯度裁剪的最大梯度范数
+max_grad_norm: 1.0
+
+# ----------------------------------------------------------------------------
+# Optimizer and Scheduler / 优化器和调度器
+# ----------------------------------------------------------------------------
+
+# Optimizer type
+# 优化器类型
+# Options: adamw_torch, adamw_hf, sgd, adafactor
+# 选项：adamw_torch, adamw_hf, sgd, adafactor
+optim: adamw_torch
+
+# Learning rate scheduler type
+# 学习率调度器类型
+# Options: linear, cosine, cosine_with_restarts, polynomial, constant
+# 选项：linear, cosine, cosine_with_restarts, polynomial, constant
+lr_scheduler_type: cosine
+
+# ----------------------------------------------------------------------------
+# Reward Model Specific Settings / 奖励模型特定设置
+# ----------------------------------------------------------------------------
+
+# Type of ranking loss
+# 排序损失类型
+# - 'sigmoid': InstructGPT style, -log(sigmoid(r_chosen - r_rejected))
+#              InstructGPT 风格，-log(sigmoid(r_chosen - r_rejected))
+# - 'hinge': Hinge loss, max(0, margin - (r_chosen - r_rejected))
+#            Hinge 损失，max(0, margin - (r_chosen - r_rejected))
+loss_type: sigmoid
+
+# Margin for ranking loss
+# 排序损失的边距
+# For sigmoid loss, this is typically 0.0
+# 对于 sigmoid 损失，通常为 0.0
+# For hinge loss, this should be > 0 (e.g., 0.5, 1.0)
+# 对于 hinge 损失，应 > 0（例如，0.5、1.0）
+margin: 0.0
+
+# ----------------------------------------------------------------------------
+# Evaluation and Checkpointing / 评估和检查点
+# ----------------------------------------------------------------------------
+
+# Evaluation strategy
+# 评估策略
+# Options: no, steps, epoch
+# 选项：no, steps, epoch
+evaluation_strategy: steps
+
+# Evaluate every N steps
+# 每 N 步评估一次
+eval_steps: 500
+
+# Save strategy
+# 保存策略
+# Options: no, steps, epoch
+# 选项：no, steps, epoch
+save_strategy: steps
+
+# Save checkpoint every N steps
+# 每 N 步保存检查点
+save_steps: 500
+
+# Maximum number of checkpoints to keep
+# 保留的最大检查点数
+# Older checkpoints will be deleted
+# 旧的检查点将被删除
+save_total_limit: 3
+
+# Load best model at the end of training
+# 在训练结束时加载最佳模型
+load_best_model_at_end: true
+
+# Metric to use for selecting best model
+# 用于选择最佳模型的指标
+# For RM, typically 'accuracy' (how often r_chosen > r_rejected)
+# 对于 RM，通常是 'accuracy'（r_chosen > r_rejected 的频率）
+metric_for_best_model: accuracy
+
+# Resume from checkpoint (set to checkpoint path if resuming)
+# 从检查点恢复（如果恢复，设置为检查点路径）
+resume_from_checkpoint: null
+
+# ----------------------------------------------------------------------------
+# Logging / 日志
+# ----------------------------------------------------------------------------
+
+# Logging strategy
+# 日志策略
+# Options: no, steps, epoch
+# 选项：no, steps, epoch
+logging_strategy: steps
+
+# Log every N steps
+# 每 N 步记录日志
+logging_steps: 10
+
+# Where to report logs
+# 日志报告位置
+# Options: tensorboard, wandb, mlflow, none
+# 选项：tensorboard, wandb, mlflow, none
+report_to:
+  - tensorboard
+
+# ----------------------------------------------------------------------------
+# Hardware and Performance / 硬件和性能
+# ----------------------------------------------------------------------------
+
+# Use mixed precision training (FP16)
+# 使用混合精度训练（FP16）
+# Recommended for faster training on GPUs with Tensor Cores
+# 推荐在具有 Tensor Core 的 GPU 上进行更快的训练
+fp16: false
+
+# Use bfloat16 mixed precision
+# 使用 bfloat16 混合精度
+# Better numerical stability than fp16, supported on newer GPUs (A100, etc.)
+# 比 fp16 更好的数值稳定性，在较新的 GPU 上支持（A100 等）
+bf16: false
+
+# Number of dataloader workers
+# 数据加载器工作进程数
+dataloader_num_workers: 4
+
+# Pin memory for dataloader (faster GPU transfer)
+# 数据加载器的固定内存（更快的 GPU 传输）
+dataloader_pin_memory: true
+
+# ----------------------------------------------------------------------------
+# DeepSpeed Configuration (Optional) / DeepSpeed 配置（可选）
+# ----------------------------------------------------------------------------
+
+# Path to DeepSpeed configuration JSON file
+# DeepSpeed 配置 JSON 文件路径
+# Uncomment to enable DeepSpeed for distributed training
+# 取消注释以启用 DeepSpeed 进行分布式训练
+#
+# For multi-GPU training with models up to ~7B parameters:
+# 对于最多约 7B 参数的多 GPU 训练：
+# deepspeed: scripts/configs/deepspeed/zero2.json
+#
+# For very large models (7B+) or limited GPU memory:
+# 对于非常大的模型（7B+）或 GPU 内存有限的情况：
+# deepspeed: scripts/configs/deepspeed/zero3.json
+#
+# See scripts/configs/deepspeed/README.md for detailed documentation
+# 请参阅 scripts/configs/deepspeed/README.md 以获取详细文档
+deepspeed: null
+
+# Note: When using DeepSpeed, make sure fp16 or bf16 is enabled
+# 注意：使用 DeepSpeed 时，请确保启用 fp16 或 bf16
+# The DeepSpeed config should match your precision settings
+# DeepSpeed 配置应与您的精度设置匹配
+
+# ----------------------------------------------------------------------------
+# Reproducibility / 可重复性
+# ----------------------------------------------------------------------------
+
+# Random seed for reproducibility
+# 用于可重复性的随机种子
+seed: 42
+
+# ----------------------------------------------------------------------------
+# Advanced Settings / 高级设置
+# ----------------------------------------------------------------------------
+
+# Whether to overwrite output directory
+# 是否覆盖输出目录
+overwrite_output_dir: true
+
+# Disable tqdm progress bars (useful for logging)
+# 禁用 tqdm 进度条（对日志有用）
+disable_tqdm: false
+
+# Remove unused columns from dataset
+# 从数据集中删除未使用的列
+remove_unused_columns: false
+
+# ----------------------------------------------------------------------------
+# Notes / 注意事项
+# ----------------------------------------------------------------------------
+#
+# Training Tips / 训练提示:
+#
+# 1. Data Quality / 数据质量:
+#    - High-quality preference data is crucial for RM training
+#      高质量的偏好数据对 RM 训练至关重要
+#    - Ensure chosen responses are consistently better than rejected ones
+#      确保选择的回答始终优于拒绝的回答
+#
+# 2. Learning Rate / 学习率:
+#    - Start with 1e-5 and adjust based on convergence
+#      从 1e-5 开始，根据收敛情况调整
+#    - Too high: unstable training, too low: slow convergence
+#      太高：训练不稳定，太低：收敛缓慢
+#
+# 3. Evaluation / 评估:
+#    - Monitor accuracy (should reach >0.6, ideally >0.7)
+#      监控准确率（应达到 >0.6，理想情况下 >0.7）
+#    - Check margin_mean (positive and increasing is good)
+#      检查 margin_mean（正值且增加是好的）
+#
+# 4. Overfitting / 过拟合:
+#    - If train accuracy >> eval accuracy, reduce epochs or add regularization
+#      如果训练准确率 >> 评估准确率，减少轮数或添加正则化
+#
+# 5. Base Model / 基础模型:
+#    - Always start from an SFT model, not a pretrained-only model
+#      始终从 SFT 模型开始，而不是仅预训练的模型
+#    - The SFT model should already follow instructions well
+#      SFT 模型应该已经很好地遵循指令
+#
+# ============================================================================
