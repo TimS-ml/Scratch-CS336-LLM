@@ -1,9 +1,11 @@
 # LLM from Scratch
 This is a comprehensive LLM learning and training project inspired by:
 - [nanoGPT](https://github.com/karpathy/nanoGPT)
+- [nanochat](https://github.com/karpathy/nanochat/tree/master)
 - [Stanford CS336](https://github.com/stanford-cs336)
-- https://github.com/wingAGI/clean-llm
-- https://github.com/wdndev/tiny-llm-zh/tree/main
+  - [assignment1-basics](https://github.com/stanford-cs336/assignment1-basics)
+- [clean-llm](https://github.com/wingAGI/clean-llm)
+- [tiny-llm-zh](https://github.com/wdndev/tiny-llm-zh/tree/main)
 
 It implements the **entire LLM training pipeline from scratch**, including tokenizer training, data processing, model pre-training, supervised fine-tuning (SFT), reward modeling (RM), reinforcement learning from human feedback (RLHF), quantization, and deployment.
 
