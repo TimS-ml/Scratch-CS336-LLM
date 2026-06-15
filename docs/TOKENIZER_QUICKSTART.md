@@ -23,7 +23,7 @@ This guide provides quick examples for merging Chinese tokenization into your LL
 pip install transformers sentencepiece torch
 
 # Verify installation / 验证安装
-python -c "from clean_llm.tokenizer import train_chinese_tokenizer; print('✓ Ready!')"
+python -c "from scratch_cs336.core.tokenizer import train_chinese_tokenizer; print('✓ Ready!')"
 ```
 
 ---
@@ -34,7 +34,7 @@ python -c "from clean_llm.tokenizer import train_chinese_tokenizer; print('✓ R
 
 **Command Line / 命令行:**
 ```bash
-python -m clean_llm.tokenizer.train_chinese \
+python -m scratch_cs336.core.tokenizer.train_chinese \
     --input chinese_corpus/ \
     --vocab-size 20000 \
     --output-dir outputs/chinese_tokenizer
@@ -42,7 +42,7 @@ python -m clean_llm.tokenizer.train_chinese \
 
 **Python API:**
 ```python
-from clean_llm.tokenizer import train_chinese_tokenizer
+from scratch_cs336.core.tokenizer import train_chinese_tokenizer
 
 model_path = train_chinese_tokenizer(
     input_files="chinese_corpus/",
@@ -67,7 +67,7 @@ python scripts/merge_tokenizers.py \
 
 **Python API:**
 ```python
-from clean_llm.tokenizer import merge_tokenizers
+from scratch_cs336.core.tokenizer import merge_tokenizers
 
 tokenizer = merge_tokenizers(
     base_tokenizer_path="llama2_tokenizer/",
@@ -92,7 +92,7 @@ python scripts/expand_model_vocab.py \
 
 **Python API:**
 ```python
-from clean_llm.tokenizer import expand_model_for_tokenizer
+from scratch_cs336.core.tokenizer import expand_model_for_tokenizer
 
 model, tokenizer = expand_model_for_tokenizer(
     model_path="original_model/",
@@ -109,10 +109,10 @@ model, tokenizer = expand_model_for_tokenizer(
 
 ```bash
 # See the complete example / 查看完整示例
-python scripts/complete_workflow_example.py --simple
+python examples/tokenizer_workflow.py --simple
 
 # Run the complete workflow (with your paths) / 运行完整工作流程（使用您的路径）
-python scripts/complete_workflow_example.py
+python examples/tokenizer_workflow.py
 ```
 
 ### Individual Commands / 单独命令
@@ -148,7 +148,7 @@ python scripts/expand_model_vocab.py \
 ### Import Everything / 导入所有功能
 
 ```python
-from clean_llm.tokenizer import (
+from scratch_cs336.core.tokenizer import (
     # Training / 训练
     train_chinese_tokenizer,
     test_tokenizer,
@@ -255,20 +255,21 @@ model, tokenizer = expand_model_for_tokenizer(
 
 ### Core Modules / 核心模块
 ```
-clean_llm/tokenizer/
+scratch_cs336/core/tokenizer/
 ├── __init__.py              # Module exports
 ├── train_chinese.py         # Chinese tokenizer training
 ├── merge_vocab.py           # Vocabulary merging
-├── expand_embedding.py      # Embedding expansion
-└── README.md               # Detailed documentation
+└── expand_embedding.py      # Embedding expansion
 ```
 
 ### Scripts / 脚本
 ```
 scripts/
 ├── merge_tokenizers.py          # CLI for merging tokenizers
-├── expand_model_vocab.py        # CLI for expanding embeddings
-└── complete_workflow_example.py # Complete workflow demo
+└── expand_model_vocab.py        # CLI for expanding embeddings
+
+examples/
+└── tokenizer_workflow.py        # Complete workflow demo
 ```
 
 ### Source Files (from tiny-llm-zh) / 源文件（来自tiny-llm-zh）
@@ -286,7 +287,7 @@ tiny-llm-zh/tokenizer/
 ### Use Case 1: Add Chinese to LLaMA / 为LLaMA添加中文
 
 ```python
-from clean_llm.tokenizer import *
+from scratch_cs336.core.tokenizer import *
 
 # Step 1: Train Chinese tokenizer (20K tokens)
 chinese_model = train_chinese_tokenizer(
@@ -384,7 +385,7 @@ merge_tokenizers(
 ### Validate Merged Tokenizer / 验证合并后的分词器
 
 ```python
-from clean_llm.tokenizer import validate_merged_tokenizer
+from scratch_cs336.core.tokenizer import validate_merged_tokenizer
 
 results = validate_merged_tokenizer(
     "merged_tokenizer/",
@@ -399,7 +400,7 @@ results = validate_merged_tokenizer(
 ### Verify Model Expansion / 验证模型扩展
 
 ```python
-from clean_llm.tokenizer import verify_embedding_expansion
+from scratch_cs336.core.tokenizer import verify_embedding_expansion
 
 results = verify_embedding_expansion(
     model=model,
@@ -467,9 +468,9 @@ expand_model_for_tokenizer(..., torch_dtype=torch.float16)
 For detailed documentation, see:
 有关详细文档，请参阅：
 
-- **Module Documentation**: `/home/user/LLM-from-Scratch/clean_llm/tokenizer/README.md`
+- **Module Documentation**: `docs/TOKENIZER.md`
 - **Script Help**: `python scripts/merge_tokenizers.py --help`
-- **Examples**: `python scripts/complete_workflow_example.py`
+- **Examples**: `python examples/tokenizer_workflow.py`
 
 ---
 
@@ -506,7 +507,7 @@ After expanding your model:
 
 - **GitHub Issues**: Report bugs and request features
 - **Documentation**: See README files in each module
-- **Examples**: Check `scripts/complete_workflow_example.py`
+- **Examples**: Check `examples/tokenizer_workflow.py`
 
 ---
 

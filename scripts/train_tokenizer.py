@@ -1,13 +1,12 @@
 import os
 import pickle
-import hydra
 
 from omegaconf import DictConfig
-# from clean_llm.tokenizer.train import run_train_bpe       # slow version
-from clean_llm.tokenizer.train_fast import run_train_bpe    # fast version
+# from scratch_cs336.core.tokenizer.train import run_train_bpe       # slow version
+from scratch_cs336.core.tokenizer.train_fast import run_train_bpe    # fast version
+from scratch_cs336.utils import load_config
 
 
-@hydra.main(config_path="configs", config_name="tokenizer", version_base=None)
 def main(cfg: DictConfig):
     vocab, merges = run_train_bpe(
         input_path=cfg.input_path,
@@ -29,4 +28,4 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    main()
+    main(load_config("configs/tokenizer.yaml"))

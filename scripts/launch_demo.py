@@ -129,7 +129,7 @@ def launch_web_ui(
 
     # Get paths / 获取路径
     project_root = get_project_root()
-    web_ui_path = project_root / "clean_llm" / "demo" / "web_ui.py"
+    web_ui_path = project_root / "scratch_cs336" / "serve" / "web_ui.py"
 
     if not web_ui_path.exists():
         print(f"Error: Web UI file not found: {web_ui_path}")
@@ -228,7 +228,7 @@ def launch_cli_chat(
 
     # Get paths / 获取路径
     project_root = get_project_root()
-    chat_path = project_root / "clean_llm" / "demo" / "chat.py"
+    chat_path = project_root / "scratch_cs336" / "serve" / "chat.py"
 
     if not chat_path.exists():
         print(f"Error: Chat file not found: {chat_path}")

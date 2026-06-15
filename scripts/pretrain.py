@@ -1,19 +1,17 @@
-import hydra
 import mlflow
 from omegaconf import DictConfig
 import warnings
 warnings.filterwarnings("ignore")
 
-from clean_llm.models.qwen2_5 import Qwen2_5
-from clean_llm.models.cs336_lm import BasicsTransformerLM
-from clean_llm.train.pretrain import train
-from clean_llm.tokenizer.tokenizer import get_custom_tokenizer
-from clean_llm.utils import _to_device_and_compile, log_params_from_omegaconf_dict
+from scratch_cs336.core.models.qwen2_5 import Qwen2_5
+from scratch_cs336.core.models.cs336_lm import BasicsTransformerLM
+from scratch_cs336.training.pretrain import train
+from scratch_cs336.core.tokenizer.tokenizer import get_custom_tokenizer
+from scratch_cs336.utils import _to_device_and_compile, log_params_from_omegaconf_dict, load_config
 
 
 
 
-@hydra.main(config_path="configs/", config_name="pretrain_cs336_lm", version_base=None)
 def main(cfg: DictConfig):
     mlflow.set_experiment(cfg.exp_name)
     mlflow.start_run()
@@ -35,4 +33,4 @@ def main(cfg: DictConfig):
     mlflow.end_run()
 
 if __name__ == '__main__':
-    main()
+    main(load_config("configs/pretrain_cs336_lm.yaml"))

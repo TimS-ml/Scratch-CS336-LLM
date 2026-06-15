@@ -11,7 +11,7 @@ It handles argument parsing and delegates to the main training module.
 
 Usage / 用法:
     # Using YAML config / 使用 YAML 配置:
-    python scripts/train_dpo.py --config scripts/configs/dpo_training.yaml
+    python scripts/train_dpo.py --config configs/dpo_training.yaml
 
     # Using command-line arguments / 使用命令行参数:
     python scripts/train_dpo.py \
@@ -22,13 +22,13 @@ Usage / 用法:
 
     # Combining both (CLI overrides YAML) / 结合两者（CLI 覆盖 YAML）:
     python scripts/train_dpo.py \
-        --config scripts/configs/dpo_training.yaml \
+        --config configs/dpo_training.yaml \
         --num_train_epochs 5 \
         --learning_rate 1e-5
 
     # Resume from checkpoint / 从检查点恢复:
     python scripts/train_dpo.py \
-        --config scripts/configs/dpo_training.yaml \
+        --config configs/dpo_training.yaml \
         --resume_from_checkpoint ./output/checkpoint-1000
 
 Author: wdndev
@@ -40,11 +40,8 @@ import sys
 import argparse
 from pathlib import Path
 
-# Add project root to path / 将项目根目录添加到路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-from clean_llm.train.dpo_train import main
+from scratch_cs336.training.dpo import main
 
 
 def parse_arguments():
@@ -63,7 +60,7 @@ def parse_arguments():
 Examples / 示例:
 
   1. Train with YAML config / 使用 YAML 配置训练:
-     python scripts/train_dpo.py --config scripts/configs/dpo_training.yaml
+     python scripts/train_dpo.py --config configs/dpo_training.yaml
 
   2. Train with command-line args / 使用命令行参数训练:
      python scripts/train_dpo.py \\
@@ -76,18 +73,18 @@ Examples / 示例:
 
   3. Train with LoRA / 使用 LoRA 训练:
      python scripts/train_dpo.py \\
-         --config scripts/configs/dpo_training.yaml \\
+         --config configs/dpo_training.yaml \\
          --use_lora \\
          --lora_r 8 \\
          --lora_alpha 16
 
   4. Resume from checkpoint / 从检查点恢复:
      python scripts/train_dpo.py \\
-         --config scripts/configs/dpo_training.yaml \\
+         --config configs/dpo_training.yaml \\
          --resume_from_checkpoint ./outputs/dpo/checkpoint-500
 
-For full list of arguments, see the configuration dataclasses in clean_llm/train/dpo_train.py
-有关完整参数列表，请参见 clean_llm/train/dpo_train.py 中的配置数据类
+For full list of arguments, see the configuration dataclasses in scratch_cs336/training/dpo.py
+有关完整参数列表，请参见 scratch_cs336/training/dpo.py 中的配置数据类
         """
     )
 

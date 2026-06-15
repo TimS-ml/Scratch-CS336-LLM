@@ -9,7 +9,7 @@ This document summarizes the DeepSpeed configuration setup for the LLM-from-Scra
 
 ### 1. DeepSpeed Configuration Files / DeepSpeed 配置文件
 
-Location: `/home/user/LLM-from-Scratch/scripts/configs/deepspeed/`
+Location: `/home/user/LLM-from-Scratch/configs/deepspeed/`
 
 - **`zero2.json`** - ZeRO Stage 2 configuration
   - Optimized for multi-GPU training (2-8 GPUs)
@@ -40,19 +40,19 @@ Location: `/home/user/LLM-from-Scratch/scripts/configs/deepspeed/`
 
 ### 2. Updated Training Configurations / 更新的训练配置
 
-#### `scripts/configs/rm_training.yaml`
+#### `configs/rm_training.yaml`
 - Added `deepspeed` parameter with examples
 - Documentation on enabling DeepSpeed
 - Notes on precision settings
 
-#### `scripts/configs/dpo_training.yaml`
+#### `configs/dpo_training.yaml`
 - Added `deepspeed` parameter with examples
 - Documentation on enabling DeepSpeed
 - Notes on precision settings
 
 ### 3. Updated Documentation / 更新的文档
 
-#### `scripts/README_RM_TRAINING.md`
+#### `docs/RM_TRAINING.md`
 - Added DeepSpeed section in Advanced Usage
 - Updated OOM troubleshooting with DeepSpeed solutions
 - Examples of DeepSpeed training commands
@@ -68,17 +68,17 @@ pip install deepspeed
 
 **Step 2: Enable DeepSpeed in Config**
 
-Edit `scripts/configs/rm_training.yaml` (or `dpo_training.yaml`):
+Edit `configs/rm_training.yaml` (or `dpo_training.yaml`):
 
 ```yaml
 # Change from:
 deepspeed: null
 
 # To (for multi-GPU training):
-deepspeed: scripts/configs/deepspeed/zero2.json
+deepspeed: configs/deepspeed/zero2.json
 
 # Or (for very large models):
-deepspeed: scripts/configs/deepspeed/zero3.json
+deepspeed: configs/deepspeed/zero3.json
 
 # Also ensure mixed precision is enabled:
 bf16: true  # for A100/H100
@@ -119,25 +119,27 @@ Which ZeRO stage should I use?
 ```
 /home/user/LLM-from-Scratch/
 │
-├── scripts/
-│   ├── configs/
-│   │   ├── deepspeed/              # NEW: DeepSpeed configurations
-│   │   │   ├── README.md           # Complete guide
-│   │   │   ├── zero2.json          # ZeRO Stage 2 config
-│   │   │   ├── zero3.json          # ZeRO Stage 3 config
-│   │   │   └── example_usage.sh    # Usage examples
-│   │   │
-│   │   ├── rm_training.yaml        # UPDATED: Added deepspeed param
-│   │   └── dpo_training.yaml       # UPDATED: Added deepspeed param
+├── configs/
+│   ├── deepspeed/                 # DeepSpeed configurations
+│   │   ├── README.md              # Complete guide
+│   │   ├── zero2.json             # ZeRO Stage 2 config
+│   │   ├── zero3.json             # ZeRO Stage 3 config
+│   │   └── example_usage.sh       # Usage examples
 │   │
-│   ├── train_rm.py                 # Already supports DeepSpeed
-│   ├── train_dpo.py                # Already supports DeepSpeed
-│   └── README_RM_TRAINING.md       # UPDATED: Added DeepSpeed section
+│   ├── rm_training.yaml           # Includes deepspeed param
+│   └── dpo_training.yaml          # Includes deepspeed param
 │
-└── clean_llm/
-    └── train/
-        ├── rm_train.py             # Already supports DeepSpeed (via TrainingArguments)
-        └── dpo_train.py            # Already supports DeepSpeed (via TrainingArguments)
+├── scripts/
+│   ├── train_rm.py                # Already supports DeepSpeed
+│   └── train_dpo.py               # Already supports DeepSpeed
+│
+├── docs/
+│   └── RM_TRAINING.md             # Includes DeepSpeed section
+│
+└── scratch_cs336/
+    └── training/
+        ├── rm.py                  # Already supports DeepSpeed (via TrainingArguments)
+        └── dpo.py                 # Already supports DeepSpeed (via TrainingArguments)
 ```
 
 ## Key Features / 关键特性
@@ -169,17 +171,17 @@ You can verify the setup:
 
 ```bash
 # 1. Check files exist
-ls -lh /home/user/LLM-from-Scratch/scripts/configs/deepspeed/
+ls -lh /home/user/LLM-from-Scratch/configs/deepspeed/
 
 # 2. Validate JSON configs
-python3 -c "import json; json.load(open('scripts/configs/deepspeed/zero2.json')); print('zero2.json is valid')"
-python3 -c "import json; json.load(open('scripts/configs/deepspeed/zero3.json')); print('zero3.json is valid')"
+python3 -c "import json; json.load(open('configs/deepspeed/zero2.json')); print('zero2.json is valid')"
+python3 -c "import json; json.load(open('configs/deepspeed/zero3.json')); print('zero3.json is valid')"
 
 # 3. Check DeepSpeed is installed
 python3 -c "import deepspeed; print(f'DeepSpeed version: {deepspeed.__version__}')"
 
 # 4. Run example script (dry-run)
-bash scripts/configs/deepspeed/example_usage.sh
+bash configs/deepspeed/example_usage.sh
 ```
 
 ## Example: Training a 7B Reward Model / 示例：训练 7B 奖励模型
@@ -191,7 +193,7 @@ bash scripts/configs/deepspeed/example_usage.sh
 **Configuration / 配置**:
 
 ```yaml
-# scripts/configs/rm_training.yaml
+# configs/rm_training.yaml
 
 model_path: models/sft_7b
 data_path: data/rm_train/preference_data.jsonl
@@ -209,7 +211,7 @@ bf16: true
 fp16: false
 
 # DeepSpeed ZeRO-2 for efficiency
-deepspeed: scripts/configs/deepspeed/zero2.json
+deepspeed: configs/deepspeed/zero2.json
 
 # Other settings
 save_steps: 500
@@ -234,7 +236,7 @@ The DeepSpeed setup is **fully compatible** with existing training workflows:
 
 DeepSpeed 设置与现有训练工作流**完全兼容**：
 
-1. **Hydra Configuration**: Works seamlessly with Hydra config system
+1. **YAML Configuration**: Works with the plain YAML (OmegaConf) config system
 2. **HuggingFace Trainer**: Native support, no code changes needed
 3. **Multi-GPU Training**: Drop-in replacement for standard DDP
 4. **Checkpointing**: Compatible with existing checkpoint system
@@ -246,8 +248,8 @@ If you encounter issues:
 
 如果遇到问题：
 
-1. **Read the guide**: `scripts/configs/deepspeed/README.md` has extensive troubleshooting
-2. **Check examples**: `scripts/configs/deepspeed/example_usage.sh` has working examples
+1. **Read the guide**: `configs/deepspeed/README.md` has extensive troubleshooting
+2. **Check examples**: `configs/deepspeed/example_usage.sh` has working examples
 3. **Common issues**:
    - OOM: Switch to ZeRO-3 or reduce batch size
    - Slow training: Disable CPU offloading if not needed
@@ -296,9 +298,9 @@ Based on tiny-llm-zh configuration:
 **Compatibility**: HuggingFace Transformers 4.x, DeepSpeed 0.10.0+
 
 For questions or issues, please refer to:
-- `scripts/configs/deepspeed/README.md` (comprehensive guide)
-- `scripts/README_RM_TRAINING.md` (RM training with DeepSpeed)
+- `configs/deepspeed/README.md` (comprehensive guide)
+- `docs/RM_TRAINING.md` (RM training with DeepSpeed)
 
 有关问题或疑问，请参阅：
-- `scripts/configs/deepspeed/README.md`（综合指南）
-- `scripts/README_RM_TRAINING.md`（使用 DeepSpeed 的 RM 训练）
+- `configs/deepspeed/README.md`（综合指南）
+- `docs/RM_TRAINING.md`（使用 DeepSpeed 的 RM 训练）

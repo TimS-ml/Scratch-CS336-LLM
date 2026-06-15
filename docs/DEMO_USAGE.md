@@ -6,9 +6,9 @@ This guide explains how to use the newly created demo interfaces for the LLM pro
 ## 📁 Created Files / 创建的文件
 
 ### Demo Package / 演示包
-- `/home/user/LLM-from-Scratch/clean_llm/demo/__init__.py` - Package initialization / 包初始化
-- `/home/user/LLM-from-Scratch/clean_llm/demo/web_ui.py` - Streamlit web interface / Streamlit Web界面
-- `/home/user/LLM-from-Scratch/clean_llm/demo/chat.py` - CLI chat interface / CLI聊天界面
+- `/home/user/LLM-from-Scratch/scratch_cs336/serve/__init__.py` - Package initialization / 包初始化
+- `/home/user/LLM-from-Scratch/scratch_cs336/serve/web_ui.py` - Streamlit web interface / Streamlit Web界面
+- `/home/user/LLM-from-Scratch/scratch_cs336/serve/chat.py` - CLI chat interface / CLI聊天界面
 
 ### Scripts / 脚本
 - `/home/user/LLM-from-Scratch/scripts/launch_demo.py` - Demo launcher script / 演示启动脚本
@@ -43,7 +43,7 @@ python scripts/launch_demo.py web --port 8080 --model_path wdndev/tiny_llm_sft_9
 
 #### Direct usage / 直接使用
 ```bash
-streamlit run clean_llm/demo/web_ui.py -- --model_path wdndev/tiny_llm_sft_92m
+streamlit run scratch_cs336/serve/web_ui.py -- --model_path wdndev/tiny_llm_sft_92m
 ```
 
 ### 2. CLI Chat / CLI聊天
@@ -66,10 +66,10 @@ python scripts/launch_demo.py cli \
 
 #### Direct usage / 直接使用
 ```bash
-python -m clean_llm.demo.chat --model_path wdndev/tiny_llm_sft_92m
+python -m scratch_cs336.serve.chat --model_path wdndev/tiny_llm_sft_92m
 
 # Or run directly / 或直接运行
-python clean_llm/demo/chat.py --model_path wdndev/tiny_llm_sft_92m
+python scratch_cs336/serve/chat.py --model_path wdndev/tiny_llm_sft_92m
 ```
 
 ## ⚙️ Configuration Options / 配置选项
@@ -133,8 +133,8 @@ Once in the chat interface, you can use:
 
 ## 🏗️ Architecture / 架构
 
-Both interfaces use the generation utilities from `clean_llm.generation`:
-两个界面都使用来自 `clean_llm.generation` 的生成工具：
+Both interfaces use the generation utilities from `scratch_cs336.core.generation`:
+两个界面都使用来自 `scratch_cs336.core.generation` 的生成工具：
 
 - `make_context()` - Build conversation context / 构建对话上下文
 - `TextIterStreamer` - Stream tokens in real-time / 实时流式传输token

@@ -4,8 +4,8 @@ This is a comprehensive LLM learning and training project inspired by:
 - [nanochat](https://github.com/karpathy/nanochat/tree/master)
 - [Stanford CS336](https://github.com/stanford-cs336)
   - [assignment1-basics](https://github.com/stanford-cs336/assignment1-basics)
+- [minimind-o](https://github.com/jingyaogong/minimind-o)
 - [clean-llm](https://github.com/wingAGI/clean-llm)
-- [tiny-llm-zh](https://github.com/wdndev/tiny-llm-zh/tree/main)
 
 It implements the **entire LLM training pipeline from scratch**, including tokenizer training, data processing, model pre-training, supervised fine-tuning (SFT), reward modeling (RM), reinforcement learning from human feedback (RLHF), quantization, and deployment.
 
@@ -87,16 +87,16 @@ uv run python -m scripts.eval_pretrain
 ## Basic Usage
 ### Pre-training
 ```bash
-# Configure: scripts/configs/pretrain_*.yaml
+# Configure: configs/pretrain_*.yaml
 uv run python -m scripts.pretrain
 
 # With DeepSpeed (multi-GPU)
-deepspeed scripts/pretrain.py --config scripts/configs/pretrain_qwen2_5.yaml
+deepspeed scripts/pretrain.py --config configs/pretrain_qwen2_5.yaml
 ```
 
 ### Supervised Fine-Tuning
 ```bash
-# Configure: scripts/configs/sft_gsm8k.yaml
+# Configure: configs/sft_gsm8k.yaml
 uv run python -m scripts.train_sft
 
 # With LoRA adapters
@@ -105,25 +105,25 @@ uv run python -m scripts.train_sft --use_lora --lora_rank 8
 
 ### Reward Model Training
 ```bash
-# Configure: scripts/configs/rm_training.yaml
+# Configure: configs/rm_training.yaml
 uv run python -m scripts.train_rm
 
 # With DeepSpeed
-deepspeed scripts/train_rm.py --config scripts/configs/rm_training.yaml
+deepspeed scripts/train_rm.py --config configs/rm_training.yaml
 ```
 
 ### DPO Training
 ```bash
-# Configure: scripts/configs/dpo_training.yaml
+# Configure: configs/dpo_training.yaml
 uv run python -m scripts.train_dpo
 
 # With DeepSpeed
-deepspeed scripts/train_dpo.py --config scripts/configs/dpo_training.yaml
+deepspeed scripts/train_dpo.py --config configs/dpo_training.yaml
 ```
 
 ### GPTQ Quantization
 ```bash
-# Configure: scripts/configs/quantization.yaml
+# Configure: configs/quantization.yaml
 uv run python -m scripts.quantize_model
 
 # Example: Quantize to 4-bit
@@ -139,12 +139,12 @@ uv run python -m scripts.quantize_model \
 uv run python -m scripts.launch_demo
 
 # Or directly
-streamlit run clean_llm/demo/web_ui.py
+streamlit run scratch_cs336/serve/web_ui.py
 ```
 
 ### Text Generation
 ```python
-from clean_llm.generation.utils import make_context, generate_text
+from scratch_cs336.core.generation.utils import make_context, generate_text
 
 # Multi-turn conversation
 messages = [
@@ -168,20 +168,22 @@ output = generate_text(
 ## Project Structure
 ```
 LLM-from-Scratch/
-├── clean_llm/                    # Main package
-│   ├── models/                   # Model architectures (CS336 LM, Qwen2.5)
-│   ├── train/                    # Training modules (pretrain, SFT, RM, DPO)
-│   ├── tokenizer/                # Tokenizer training & utilities
-│   ├── data/                     # Data processing
-│   ├── generation/               # Generation utilities
-│   ├── quantize/                 # GPTQ quantization
-│   ├── demo/                     # Web UI and demos
+├── scratch_cs336/                # Main package
+│   ├── core/                     # Reusable primitives
+│   │   ├── models/               #   Model architectures (CS336 LM, Qwen2.5)
+│   │   ├── tokenizer/            #   Tokenizer training & utilities
+│   │   ├── generation/           #   Generation utilities
+│   │   └── quantize/             #   GPTQ quantization
+│   ├── training/                 # Training pipeline (pretrain, SFT, RM, DPO)
+│   ├── data/                     # Data processing code
 │   ├── eval/                     # Evaluation
-│   └── utils.py                  # Common utilities
-├── scripts/                      # Training & inference scripts
-│   └── configs/                  # Configuration files
-├── data/                         # Training data
-├── data_sft/                     # SFT data
+│   ├── serve/                    # Web UI and CLI chat
+│   └── utils.py                  # Common utilities (incl. load_config)
+├── scripts/                      # Thin entry points (plain YAML config, no Hydra)
+├── configs/                      # YAML configuration files (+ deepspeed/)
+├── data/                         # Data only (downloads, committed SFT samples)
+├── tests/                        # Tests
+├── examples/                     # Example workflows
 └── docs/                         # Documentation
 ```
 

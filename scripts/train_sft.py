@@ -1,15 +1,14 @@
 import torch
-import hydra
 from omegaconf import DictConfig
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from clean_llm.train.sft import run_tokenize_prompt_and_output
-from clean_llm.train.sft import run_get_response_log_probs
-from clean_llm.train.sft import run_sft_microbatch_train_step
+from scratch_cs336.training.sft import run_tokenize_prompt_and_output
+from scratch_cs336.training.sft import run_get_response_log_probs
+from scratch_cs336.training.sft import run_sft_microbatch_train_step
+from scratch_cs336.utils import load_config
 
 
-@hydra.main(config_path="configs", config_name="sft_gsm8k", version_base=None)
 def main(cfg: DictConfig):
     model = AutoModelForCausalLM.from_pretrained(
     cfg.model_path,
@@ -51,4 +50,4 @@ def main(cfg: DictConfig):
     
     
 if __name__ == '__main__':
-    main()
+    main(load_config("configs/sft_gsm8k.yaml"))

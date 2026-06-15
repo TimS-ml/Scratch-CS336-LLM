@@ -39,11 +39,8 @@ from typing import Optional
 import torch
 import yaml
 
-# Add project root to path / 将项目根目录添加到路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-from clean_llm.quantize import (
+from scratch_cs336.core.quantize import (
     GPTQConfig,
     GPTQQuantizer,
     prepare_calibration_data,

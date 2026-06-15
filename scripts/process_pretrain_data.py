@@ -46,11 +46,8 @@ import glob
 from pathlib import Path
 from typing import List
 
-# Add project root to path / 将项目根目录添加到路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-from clean_llm.data.processors.pretrain_processor import (
+from scratch_cs336.data.processors.pretrain_processor import (
     PretrainDataProcessor,
     merge_binary_files
 )
@@ -137,9 +134,9 @@ Examples / 示例:
     tokenizer_group.add_argument(
         '--tokenizer-type',
         type=str,
-        default='chatglm',
-        choices=['chatglm', 'sentencepiece', 'huggingface'],
-        help='Tokenizer type / 分词器类型 (default: chatglm)'
+        default='huggingface',
+        choices=['sentencepiece', 'huggingface'],
+        help='Tokenizer type / 分词器类型 (default: huggingface)'
     )
 
     # Processing options / 处理选项
@@ -210,11 +207,7 @@ def load_tokenizer(tokenizer_path: str, tokenizer_type: str):
     logger.info(f"Loading {tokenizer_type} tokenizer from {tokenizer_path}")
 
     try:
-        if tokenizer_type == 'chatglm':
-            from clean_llm.tokenizer import ChatGLMTokenizer
-            return ChatGLMTokenizer(vocab_file=tokenizer_path)
-
-        elif tokenizer_type == 'sentencepiece':
+        if tokenizer_type == 'sentencepiece':
             import sentencepiece as spm
             sp = spm.SentencePieceProcessor()
             sp.load(tokenizer_path)

@@ -1,8 +1,8 @@
-import hydra
 from omegaconf import DictConfig
-from clean_llm.tokenizer.tokenizer import get_custom_tokenizer, encode_txt_as_array
+from scratch_cs336.core.tokenizer.tokenizer import get_custom_tokenizer, encode_txt_as_array
+from scratch_cs336.utils import load_config
 
-@hydra.main(config_path="configs", config_name="tokenizer", version_base=None)
+
 def main(cfg: DictConfig):
     tokenizer = get_custom_tokenizer(vocab_path=cfg.vocab_path, 
                                      merges_path=cfg.merges_path, 
@@ -13,4 +13,4 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    main()
+    main(load_config("configs/tokenizer.yaml"))

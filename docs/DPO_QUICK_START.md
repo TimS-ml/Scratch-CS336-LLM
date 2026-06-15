@@ -1,11 +1,13 @@
 # DPO Training - Quick Start Guide
 # DPO 训练 - 快速入门指南
 
+> For the detailed reference, see [DPO_TRAINING.md](./DPO_TRAINING.md).
+
 ## What Was Created / 创建了什么
 
 ### Core Files / 核心文件
 
-1. **`/home/user/LLM-from-Scratch/clean_llm/train/dpo_train.py`** (31 KB)
+1. **`/home/user/LLM-from-Scratch/scratch_cs336/training/dpo.py`** (31 KB)
    - Main DPO training module with production-ready implementation
    - 主 DPO 训练模块，生产就绪的实现
    - Features: Type hints, bilingual comments, error handling, LoRA support
@@ -17,7 +19,7 @@
    - Handles argument parsing and configuration
    - 处理参数解析和配置
 
-3. **`/home/user/LLM-from-Scratch/scripts/configs/dpo_training.yaml`** (9.9 KB)
+3. **`/home/user/LLM-from-Scratch/configs/dpo_training.yaml`** (9.9 KB)
    - Comprehensive configuration template
    - 全面的配置模板
    - Includes all parameters with detailed comments
@@ -29,13 +31,13 @@
    - Creates test data and validates configuration
    - 创建测试数据并验证配置
 
-5. **`/home/user/LLM-from-Scratch/clean_llm/train/DPO_TRAINING_README.md`** (15 KB)
+5. **`/home/user/LLM-from-Scratch/docs/DPO_TRAINING.md`** (15 KB)
    - Comprehensive documentation
    - 全面的文档
    - Includes examples, troubleshooting, and best practices
    - 包含示例、故障排除和最佳实践
 
-6. **`/home/user/LLM-from-Scratch/clean_llm/train/__init__.py`** (506 B)
+6. **`/home/user/LLM-from-Scratch/scratch_cs336/training/__init__.py`** (506 B)
    - Package initialization
    - 包初始化
 
@@ -47,18 +49,18 @@
 
 ```bash
 cd /home/user/LLM-from-Scratch
-python scripts/test_dpo_setup.py
+python tests/test_dpo_setup.py
 ```
 
 This will:
 - Create test dataset in `data/dpo_test/`
-- Create test configuration in `scripts/configs/dpo_test.yaml`
+- Create test configuration in `configs/dpo_test.yaml`
 - Verify dataset loading works
 - Optionally test model loading
 
 这将:
 - 在 `data/dpo_test/` 中创建测试数据集
-- 在 `scripts/configs/dpo_test.yaml` 中创建测试配置
+- 在 `configs/dpo_test.yaml` 中创建测试配置
 - 验证数据集加载正常工作
 - 可选地测试模型加载
 
@@ -75,9 +77,9 @@ Create a JSONL file with your preference data:
 
 ### 3. Configure Training / 配置训练
 
-Edit `scripts/configs/dpo_training.yaml`:
+Edit `configs/dpo_training.yaml`:
 
-编辑 `scripts/configs/dpo_training.yaml`:
+编辑 `configs/dpo_training.yaml`:
 
 ```yaml
 model:
@@ -98,14 +100,14 @@ training:
 
 ```bash
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml
+    --config configs/dpo_training.yaml
 ```
 
 #### With LoRA / 使用 LoRA
 
 ```bash
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --use_lora \
     --lora_r 8 \
     --lora_alpha 16
@@ -115,7 +117,7 @@ python scripts/train_dpo.py \
 
 ```bash
 torchrun --nproc_per_node=4 scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml
+    --config configs/dpo_training.yaml
 ```
 
 ---
@@ -155,18 +157,20 @@ torchrun --nproc_per_node=4 scripts/train_dpo.py \
 
 ```
 LLM-from-Scratch/
-├── clean_llm/
-│   └── train/
+├── scratch_cs336/
+│   └── training/
 │       ├── __init__.py                    # Package init
-│       ├── dpo_train.py                   # Main training module ⭐
-│       ├── rlhf_datasets.py               # Dataset utilities
-│       └── DPO_TRAINING_README.md         # Comprehensive docs ⭐
+│       ├── dpo.py                         # Main training module ⭐
+│       └── datasets.py                    # Dataset utilities
 ├── scripts/
-│   ├── train_dpo.py                       # Entry point ⭐
-│   ├── test_dpo_setup.py                  # Setup tester ⭐
-│   └── configs/
-│       └── dpo_training.yaml              # Config template ⭐
-└── DPO_QUICK_START.md                     # This file ⭐
+│   └── train_dpo.py                       # Entry point ⭐
+├── tests/
+│   └── test_dpo_setup.py                  # Setup tester ⭐
+├── configs/
+│   └── dpo_training.yaml                  # Config template ⭐
+└── docs/
+    ├── DPO_QUICK_START.md                 # This file ⭐
+    └── DPO_TRAINING.md                    # Comprehensive docs ⭐
 ```
 
 ---
@@ -178,11 +182,11 @@ LLM-from-Scratch/
 ```
 train_dpo.py (Entry Point)
     ↓
-dpo_train.py (Main Module)
+dpo.py (Main Module)
     ├── DPOTrainingPipeline
     │   ├── load_tokenizer()
     │   ├── load_model()
-    │   ├── load_datasets() → rlhf_datasets.load_dpo_dataset()
+    │   ├── load_datasets() → datasets.load_dpo_dataset()
     │   ├── create_trainer() → TRL DPOTrainer
     │   └── train()
     │
@@ -206,11 +210,11 @@ dpo_train.py (Main Module)
 
 ```bash
 # 1. Test setup
-python scripts/test_dpo_setup.py
+python tests/test_dpo_setup.py
 
 # 2. Run quick training
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_test.yaml
+    --config configs/dpo_test.yaml
 ```
 
 ### Workflow 2: Full Training with Your Data / 使用您的数据进行完整训练
@@ -220,11 +224,11 @@ python scripts/train_dpo.py \
 # Create train.jsonl and eval.jsonl
 
 # 2. Edit config
-vim scripts/configs/dpo_training.yaml
+vim configs/dpo_training.yaml
 
 # 3. Train
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml
+    --config configs/dpo_training.yaml
 
 # 4. Monitor
 tensorboard --logdir outputs/dpo_training/logs
@@ -235,7 +239,7 @@ tensorboard --logdir outputs/dpo_training/logs
 ```bash
 # Large model with memory optimization
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --model_name_or_path meta-llama/Llama-2-7b-hf \
     --use_lora \
     --lora_r 16 \
@@ -287,7 +291,7 @@ lora:
 ```bash
 # Run with torchrun
 torchrun --nproc_per_node=4 scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 4
 ```
@@ -300,17 +304,17 @@ torchrun --nproc_per_node=4 scripts/train_dpo.py \
 
 ```bash
 # Basic training
-python scripts/train_dpo.py --config scripts/configs/dpo_training.yaml
+python scripts/train_dpo.py --config configs/dpo_training.yaml
 
 # Override specific parameters
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --num_train_epochs 5 \
     --learning_rate 1e-5
 
 # Training with LoRA
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --use_lora
 ```
 
@@ -328,7 +332,7 @@ tail -f outputs/dpo_training/logs/*.log
 
 ```bash
 python scripts/train_dpo.py \
-    --config scripts/configs/dpo_training.yaml \
+    --config configs/dpo_training.yaml \
     --resume_from_checkpoint outputs/dpo_training/checkpoint-500
 ```
 
@@ -337,16 +341,16 @@ python scripts/train_dpo.py \
 ## Next Steps / 下一步
 
 1. **Read the Full Documentation** / 阅读完整文档
-   - See `clean_llm/train/DPO_TRAINING_README.md`
+   - See `docs/DPO_TRAINING.md`
 
 2. **Test Your Setup** / 测试设置
-   - Run `python scripts/test_dpo_setup.py`
+   - Run `python tests/test_dpo_setup.py`
 
 3. **Prepare Your Data** / 准备数据
    - Create JSONL files with prompt/chosen/rejected
 
 4. **Configure Training** / 配置训练
-   - Edit `scripts/configs/dpo_training.yaml`
+   - Edit `configs/dpo_training.yaml`
 
 5. **Start Training** / 开始训练
    - Run `python scripts/train_dpo.py --config ...`
@@ -359,9 +363,9 @@ python scripts/train_dpo.py \
 
 ## Support Resources / 支持资源
 
-- **Full Documentation**: `clean_llm/train/DPO_TRAINING_README.md`
-- **Configuration Template**: `scripts/configs/dpo_training.yaml`
-- **Test Script**: `scripts/test_dpo_setup.py`
+- **Full Documentation**: `docs/DPO_TRAINING.md`
+- **Configuration Template**: `configs/dpo_training.yaml`
+- **Test Script**: `tests/test_dpo_setup.py`
 - **Example Data**: Created by test script in `data/dpo_test/`
 
 ---
@@ -409,5 +413,5 @@ python scripts/train_dpo.py \
 
 ```bash
 cd /home/user/LLM-from-Scratch
-python scripts/test_dpo_setup.py
+python tests/test_dpo_setup.py
 ```

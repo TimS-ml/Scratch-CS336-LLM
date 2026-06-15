@@ -24,17 +24,14 @@ import argparse
 from pathlib import Path
 import torch
 
-# Add project root to path / 添加项目根目录到路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
 try:
-    from clean_llm.tokenizer import (
+    from scratch_cs336.core.tokenizer import (
         expand_model_for_tokenizer,
         verify_embedding_expansion
     )
 except ImportError as e:
-    print(f"Error importing clean_llm modules: {e}")
+    print(f"Error importing scratch_cs336 modules: {e}")
     print("Please ensure you're running from the project root directory.")
     sys.exit(1)
 

@@ -3,18 +3,18 @@ Reward Model Training Entry Point
 奖励模型训练入口点
 
 This script serves as the main entry point for training reward models.
-It uses Hydra for configuration management and provides a clean interface
+It loads a plain YAML config file and provides a clean interface
 for launching RM training jobs.
 
 此脚本作为训练奖励模型的主入口点。
-它使用 Hydra 进行配置管理，并提供一个简洁的接口来启动 RM 训练任务。
+它加载普通 YAML 配置文件，并提供一个简洁的接口来启动 RM 训练任务。
 
 Usage / 用法:
     # Train with default config / 使用默认配置训练
     python scripts/train_rm.py
 
     # Train with custom config / 使用自定义配置训练
-    python scripts/train_rm.py --config-name rm_training_custom
+    python scripts/train_rm.py --config configs/rm_training_custom.yaml
 
     # Override specific parameters / 覆盖特定参数
     python scripts/train_rm.py learning_rate=1e-5 num_epochs=3
@@ -38,21 +38,15 @@ import os
 import sys
 import logging
 import torch
-import hydra
 from omegaconf import DictConfig, OmegaConf
-from pathlib import Path
 
-# Add project root to path to enable imports
-# 将项目根目录添加到路径以启用导入
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from clean_llm.train.rm_train import (
+from scratch_cs336.training.rm import (
     ModelArguments,
     DataArguments,
     RMTrainingArguments,
     train_reward_model,
 )
+from scratch_cs336.utils import load_config
 
 # Setup logger / 设置日志记录器
 logger = logging.getLogger(__name__)
@@ -67,7 +61,7 @@ def validate_config(cfg: DictConfig) -> None:
     检查所有必需的参数都存在且具有有效值。
 
     Args:
-        cfg: Hydra configuration object / Hydra 配置对象
+        cfg: config object / 配置对象
 
     Raises:
         ValueError: If configuration is invalid / 如果配置无效
@@ -127,7 +121,7 @@ def setup_output_directories(cfg: DictConfig) -> None:
     创建检查点、日志和保存模型所需的目录。
 
     Args:
-        cfg: Hydra configuration object / Hydra 配置对象
+        cfg: config object / 配置对象
     """
     # Create output directories / 创建输出目录
     os.makedirs(cfg.output_dir, exist_ok=True)
@@ -146,7 +140,7 @@ def log_training_info(cfg: DictConfig) -> None:
     记录训练配置和环境信息
 
     Args:
-        cfg: Hydra configuration object / Hydra 配置对象
+        cfg: config object / 配置对象
     """
     logger.info("=" * 80)
     logger.info("Reward Model Training Configuration")
@@ -176,27 +170,26 @@ def log_training_info(cfg: DictConfig) -> None:
     logger.info("=" * 80 + "\n")
 
 
-@hydra.main(config_path="configs", config_name="rm_training", version_base=None)
 def main(cfg: DictConfig) -> None:
     """
-    Main training function with Hydra configuration
-    使用 Hydra 配置的主训练函数
+    Main training function
+    主训练函数
 
     This function:
         1. Validates the configuration
         2. Sets up output directories
-        3. Converts Hydra config to training argument objects
+        3. Converts config to training argument objects
         4. Launches the training process
 
     此函数：
         1. 验证配置
         2. 设置输出目录
-        3. 将 Hydra 配置转换为训练参数对象
+        3. 将配置转换为训练参数对象
         4. 启动训练过程
 
     Args:
-        cfg: Hydra configuration object loaded from YAML
-            从 YAML 加载的 Hydra 配置对象
+        cfg: config object loaded from YAML
+            从 YAML 加载的配置对象
     """
     # Print full configuration for debugging / 打印完整配置以供调试
     logger.info("Full configuration / 完整配置:")
@@ -217,7 +210,7 @@ def main(cfg: DictConfig) -> None:
     log_training_info(cfg)
 
     # ========================================================================
-    # Convert Hydra config to training arguments / 将 Hydra 配置转换为训练参数
+    # Convert config to training arguments / 将配置转换为训练参数
     # ========================================================================
 
     # Model arguments / 模型参数
@@ -315,4 +308,4 @@ def main(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(load_config("configs/rm_training.yaml"))

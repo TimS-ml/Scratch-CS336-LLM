@@ -1,14 +1,13 @@
 import os
 import torch
-import hydra
 from omegaconf import DictConfig
-from clean_llm.eval.eval_pretrain import evaluate
-from clean_llm.models.qwen2_5 import Qwen2_5
-from clean_llm.models.cs336_lm import BasicsTransformerLM
-from clean_llm.tokenizer.tokenizer import get_custom_tokenizer
-from clean_llm.utils import _to_device_and_compile
+from scratch_cs336.eval.pretrain import evaluate
+from scratch_cs336.core.models.qwen2_5 import Qwen2_5
+from scratch_cs336.core.models.cs336_lm import BasicsTransformerLM
+from scratch_cs336.core.tokenizer.tokenizer import get_custom_tokenizer
+from scratch_cs336.utils import _to_device_and_compile, load_config
 
-@hydra.main(config_path="configs", config_name="evaluate_cs336_lm", version_base=None)
+
 def main(cfg: DictConfig):
     model_config, eval_config, tokenizer_config = cfg.model, cfg.eval, cfg.tokenizer
     tokenizer = get_custom_tokenizer(**tokenizer_config)
@@ -44,4 +43,4 @@ def main(cfg: DictConfig):
     print("生成结果：", result_text)
 
 if __name__ == "__main__":
-    main()
+    main(load_config("configs/evaluate_cs336_lm.yaml"))

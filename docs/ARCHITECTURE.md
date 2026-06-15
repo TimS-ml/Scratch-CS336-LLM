@@ -66,73 +66,89 @@ The system supports the complete LLM lifecycle:
 ### 1. Core Modules
 
 ```
-clean_llm/
+scratch_cs336/
 │
-├── models/                      # Model Architectures
-│   ├── basics.py               # Core components (attention, FFN, embeddings)
-│   ├── cs336_lm.py            # CS336 Language Model implementation
-│   └── qwen2_5.py             # Qwen2.5 model with GQA
-│
-├── tokenizer/                   # Tokenization Layer
-│   ├── train.py               # SentencePiece tokenizer training
-│   ├── train_fast.py          # Fast BPE implementation
-│   └── train_chinese.py       # Chinese-optimized tokenizer
+├── core/                        # Reusable library layer
+│   ├── models/                  # Model Architectures
+│   │   ├── basics.py            # Core components (attention, FFN, embeddings)
+│   │   ├── cs336_lm.py          # CS336 Language Model implementation
+│   │   └── qwen2_5.py           # Qwen2.5 model with GQA
+│   │
+│   ├── tokenizer/               # Tokenization Layer
+│   │   ├── tokenizer.py         # Custom BPE tokenizer (encode/decode)
+│   │   ├── train.py             # SentencePiece tokenizer training
+│   │   ├── train_fast.py        # Fast BPE implementation
+│   │   ├── train_chinese.py     # Chinese-optimized tokenizer
+│   │   ├── merge_vocab.py       # Vocabulary merging
+│   │   └── expand_embedding.py  # Embedding expansion for new vocab
+│   │
+│   ├── generation/              # Text Generation
+│   │   ├── utils.py             # Context management, parsing
+│   │   ├── processors.py        # Logits processors (repetition penalty, etc.)
+│   │   └── streaming.py         # Streaming generation
+│   │
+│   └── quantize/                # Model Compression
+│       └── gptq.py              # GPTQ quantization (4-bit, 8-bit)
 │
 ├── data/                        # Data Processing Pipeline
+│   ├── preprocess.py            # Dataset loaders (e.g. GSM8K)
 │   └── processors/
 │       ├── pretrain_processor.py    # Pre-training data
 │       ├── sft_processor.py         # SFT data (Belle, Firefly, etc.)
 │       └── rm_processor.py          # Preference data for RM/DPO
 │
-├── train/                       # Training Orchestration
-│   ├── pretrain.py            # Pre-training loop
-│   ├── sft.py                 # Supervised fine-tuning
-│   ├── rm_train.py            # Reward model training
-│   ├── dpo_train.py           # Direct Preference Optimization
-│   ├── rlhf_datasets.py       # RLHF data loaders
-│   └── adapters.py            # LoRA/PEFT adapters
+├── training/                    # Training Orchestration
+│   ├── pretrain.py              # Pre-training loop
+│   ├── sft.py                   # Supervised fine-tuning
+│   ├── rm.py                    # Reward model training
+│   ├── dpo.py                   # Direct Preference Optimization
+│   ├── datasets.py              # RLHF data loaders
+│   └── adapters.py              # LoRA/PEFT adapters
 │
-├── generation/                  # Text Generation
-│   ├── utils.py               # Context management, parsing
-│   ├── processors.py          # Logits processors (repetition penalty, etc.)
-│   └── streaming.py           # Streaming generation
+├── eval/                        # Evaluation Framework
+│   └── pretrain.py              # Perplexity and metrics
 │
-├── quantize/                    # Model Compression
-│   └── gptq.py                # GPTQ quantization (4-bit, 8-bit)
+├── serve/                       # User Interfaces
+│   ├── web_ui.py                # Streamlit web interface
+│   └── chat.py                  # Command-line chat
 │
-├── demo/                        # User Interfaces
-│   ├── web_ui.py              # Streamlit web interface
-│   └── chat.py                # Command-line chat
-│
-└── eval/                        # Evaluation Framework
-    └── eval_pretrain.py       # Perplexity and metrics
+└── utils.py                     # Device + MLflow/OmegaConf helpers
 ```
 
 ### 2. Scripts Layer
 
 ```
-scripts/
-│
-├── train_tokenizer.py          # Entry point: Tokenizer training
-├── pretrain.py                 # Entry point: Pre-training
-├── train_sft.py                # Entry point: SFT
-├── train_rm.py                 # Entry point: Reward model
-├── train_dpo.py                # Entry point: DPO
-├── train_grpo.py               # Entry point: GRPO
-├── quantize_model.py           # Entry point: Quantization
-├── launch_demo.py              # Entry point: Web UI
-├── eval_pretrain.py            # Entry point: Evaluation
-│
-└── configs/                     # Configuration Management
-    ├── tokenizer.yaml
-    ├── pretrain_*.yaml
-    ├── sft_gsm8k.yaml
-    ├── rm_training.yaml
-    ├── dpo_training.yaml
-    ├── quantization.yaml
-    └── deepspeed/
-        ├── zero2.json
-        └── zero3.json
+scripts/                          # Thin entry points (load config, call package)
+├── train_tokenizer.py           # Tokenizer training
+├── tokenize.py                  # Encode corpus to token ids
+├── pretrain.py                  # Pre-training
+├── train_sft.py                 # SFT
+├── train_rm.py                  # Reward model
+├── train_dpo.py                 # DPO
+├── train_grpo.py                # GRPO
+├── quantize_model.py            # Quantization
+├── launch_demo.py               # Web UI / CLI chat launcher
+├── eval_pretrain.py             # Evaluation
+├── merge_tokenizers.py          # Merge tokenizer vocabularies
+├── expand_model_vocab.py        # Expand model embeddings for a new tokenizer
+├── process_pretrain_data.py     # Build pre-training data
+├── process_sft_data.py          # Build SFT data
+└── process_rm_data.py           # Build RM / preference data
+
+configs/                          # Top-level YAML configs (plain OmegaConf, no Hydra)
+├── tokenizer.yaml
+├── pretrain_cs336_lm.yaml
+├── pretrain_qwen2_5.yaml
+├── evaluate_cs336_lm.yaml
+├── evaluate_qwen2_5.yaml
+├── sft_gsm8k.yaml
+├── grpo_gsm8k.yaml
+├── rm_training.yaml
+├── dpo_training.yaml
+├── quantization.yaml
+└── deepspeed/
+    ├── zero2.json
+    └── zero3.json
 ```
 
 ---
@@ -279,7 +295,7 @@ scripts/
 
 ## Module Descriptions
 
-### 1. Model Architectures (`clean_llm/models/`)
+### 1. Model Architectures (`scratch_cs336/core/models/`)
 
 **Purpose**: Define neural network architectures for language models.
 
@@ -306,7 +322,7 @@ scripts/
 
 ---
 
-### 2. Tokenizer (`clean_llm/tokenizer/`)
+### 2. Tokenizer (`scratch_cs336/core/tokenizer/`)
 
 **Purpose**: Convert text to token IDs and vice versa.
 
@@ -330,7 +346,7 @@ scripts/
 
 ---
 
-### 3. Data Processing (`clean_llm/data/processors/`)
+### 3. Data Processing (`scratch_cs336/data/processors/`)
 
 **Purpose**: Load, clean, and prepare datasets for training.
 
@@ -355,7 +371,7 @@ scripts/
 
 ---
 
-### 4. Training (`clean_llm/train/`)
+### 4. Training (`scratch_cs336/training/`)
 
 **Purpose**: Orchestrate the training loop for different paradigms.
 
@@ -372,12 +388,12 @@ scripts/
   - LoRA adapter support
   - Multi-dataset batching
 
-- **rm_train.py**:
+- **rm.py**:
   - Pairwise preference learning
   - Margin-based loss function
   - Reward accuracy metrics
 
-- **dpo_train.py**:
+- **dpo.py**:
   - Direct Preference Optimization
   - Reference model frozen
   - Beta parameter for KL control
@@ -391,7 +407,7 @@ scripts/
 
 ---
 
-### 5. Generation (`clean_llm/generation/`)
+### 5. Generation (`scratch_cs336/core/generation/`)
 
 **Purpose**: Generate text from trained models.
 
@@ -416,7 +432,7 @@ scripts/
 
 ---
 
-### 6. Quantization (`clean_llm/quantize/`)
+### 6. Quantization (`scratch_cs336/core/quantize/`)
 
 **Purpose**: Compress models for efficient deployment.
 
@@ -432,7 +448,7 @@ scripts/
 
 ---
 
-### 7. Demo & UI (`clean_llm/demo/`)
+### 7. Demo & UI (`scratch_cs336/serve/`)
 
 **Purpose**: User-facing interfaces for model interaction.
 
@@ -452,7 +468,7 @@ scripts/
 
 ---
 
-### 8. Evaluation (`clean_llm/eval/`)
+### 8. Evaluation (`scratch_cs336/eval/`)
 
 **Purpose**: Assess model performance.
 
