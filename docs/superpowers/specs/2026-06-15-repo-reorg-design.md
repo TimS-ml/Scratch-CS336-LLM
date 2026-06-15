@@ -99,7 +99,13 @@ Boring-CS336-LLM-from-Scratch-Extend/
 | `clean_llm/demo/{chat,web_ui}.py`, `__init__.py` | `scratch_cs336/serve/` |
 
 New files: `scratch_cs336/core/__init__.py`, `core/models/__init__.py`, `eval/__init__.py`,
-`data/__init__.py`, `data/preprocess.py` (real, replacing stub).
+`data/__init__.py`, `data/preprocess.py`.
+
+`scratch_cs336/data/preprocess.py` (replaces the broken `data_sft/preprocess.py` pdb stub):
+a clean, documented GSM8K loader with **no `pdb`** — a `load_gsm8k(split="main")` function
+that loads the committed parquet under `data/sft/gsm8k/` (falling back to `datasets.load_dataset`),
+plus a `if __name__ == "__main__":` block that prints split sizes/sample instead of dropping
+into a debugger.
 
 ### 4.2 In-package READMEs → `docs/`
 
@@ -203,9 +209,10 @@ framework: no `config_path`/`config_name`, no cwd switching, no auto output dirs
 interpolations are kept — `OmegaConf.load` resolves them on access):
 
 - `root_dir: ${hydra:runtime.cwd}` → `root_dir: .` (scripts run from repo root; no cwd switch)
-- `${hydra:run.dir}/...` (in `rm_training.yaml`, `sft_gsm8k.yaml`, `grpo_gsm8k.yaml`)
-  → `outputs/...` (e.g. `output_dir: outputs/reward_model/`, `checkpoint_dir: outputs/.../checkpoint/`).
-  `outputs/` is already gitignored.
+- `${hydra:run.dir}/...` → rooted at `outputs/` (already gitignored), per file:
+  - `rm_training.yaml`: `output_dir: outputs/reward_model/`, `checkpoint_dir: outputs/reward_model/checkpoint/`
+  - `sft_gsm8k.yaml`: `checkpoint_dir: outputs/sft_gsm8k/checkpoint/`, `csv_dir: outputs/sft_gsm8k/csv/`
+  - `grpo_gsm8k.yaml`: `checkpoint_dir: outputs/grpo_gsm8k/checkpoint/`, `csv_dir: outputs/grpo_gsm8k/csv/`
 - Remove dead `# hydra:` comment headers.
 
 Affected files: `pretrain_cs336_lm.yaml`, `pretrain_qwen2_5.yaml`, `evaluate_cs336_lm.yaml`,
@@ -215,7 +222,8 @@ Affected files: `pretrain_cs336_lm.yaml`, `pretrain_qwen2_5.yaml`, `evaluate_cs3
 
 - `name = "scratch_cs336"` (was `clean-llm`).
 - Remove `hydra-core>=1.3.2`.
-- Add `omegaconf` (was transitive via hydra) and `pyyaml` if needed.
+- Add `omegaconf` explicitly (was transitive via hydra-core; it bundles YAML support, so no
+  separate `pyyaml` needed).
 - Add build backend + package discovery so `pip install -e .` resolves the package:
 
 ```toml
