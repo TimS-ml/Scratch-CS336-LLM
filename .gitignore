@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Run outputs (pipeline artifacts, checkpoints, logs)
+/runs/
+/outputs/
+/checkpoints/
+/data/
+wandb/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+.cursor/
+*.code-workspace
